@@ -13,6 +13,7 @@ namespace lol_cd_quiz
             Cooldowns = GetCooldowns(node);
             Description = GetDescription(node);
             Cost = GetCost(node);
+            Range = GetRange(node);
         }
 
         public string Name { get; set; }
@@ -20,6 +21,7 @@ namespace lol_cd_quiz
         public List<String> Cooldowns { get; set; }
         public string Description { get; set; }
         public string Cost { get; set; }
+        public List<string> Range { get; set; }
 
         public List<string> GetCooldowns(HtmlNode node)
         {
@@ -136,6 +138,33 @@ namespace lol_cd_quiz
             }
 
             return cost;
+        }
+
+        private List<string> GetRange(HtmlNode node)
+        {
+            List<string> range = new List<string>();
+
+            foreach (HtmlNode element in node.ChildNodes)
+            {
+                if (element.Attributes["class"] != null && element.Attributes["class"].Value == "champ-abilities__item__range")
+                {
+                    var rangeString = new string((from i in element.ChildNodes[0].InnerText
+                                                 where char.IsLetterOrDigit(i) || char.IsWhiteSpace(i)
+                                                 select i
+                                                ).ToArray()).Replace("\n", " ");
+                    var rangeArray = rangeString.Split(" ").Where(x => x.ToString() != "").ToArray();
+                    if (rangeArray.Length > 0)
+                    {
+                        foreach (var rangeElement in rangeArray)
+                        {
+                            range.Add(rangeElement);
+                        }
+                    }
+                }
+
+            }
+
+            return range;
         }
     }
 }
