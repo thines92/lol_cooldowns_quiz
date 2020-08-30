@@ -57,21 +57,12 @@ namespace lol_cd_quiz
 
         public string GetName(HtmlNode node)
         {
-            var name = "";
+            Filter filter = new Filter("class", "champ-abilities__item__name");
 
-            foreach (HtmlNode element in node.ChildNodes)
-            {
-                if (element.Attributes["class"] != null && element.Attributes["class"].Value == "champ-abilities__item__name")
-                {
-                    var nameString = new string((from i in element.ChildNodes[0].InnerText
-                                                 where char.IsLetterOrDigit(i) || char.IsWhiteSpace(i)
-                                                 select i
-                                                ).ToArray()).Replace("\n", " ");
-                    var nameArray = nameString.Split(" ");
-                    name = nameString.Trim();
-                }
-
-            }
+            var name = HtmlScraper.SearchNodeForValue(node, filter)
+                .Where(x => x.Name.Contains("text"))
+                .FirstOrDefault()
+                .InnerText.Replace("\n", "");
 
             return name;
         }
