@@ -8,6 +8,7 @@ namespace lol_cd_quiz
     {
         public Ability(HtmlNode node)
         {
+            IconSrc = GetIconSrc(node);
             Name = GetName(node);
             Key = GetKey(node);
             Cooldowns = GetCooldowns(node);
@@ -16,12 +17,31 @@ namespace lol_cd_quiz
             Range = GetRange(node);
         }
 
+        public string IconSrc { get; set; }
         public string Name { get; set; }
         public string Key { get; set; }
         public List<String> Cooldowns { get; set; }
         public string Description { get; set; }
         public string Cost { get; set; }
         public List<string> Range { get; set; }
+
+        public string GetIconSrc(HtmlNode node)
+        {
+            var iconSrc = "https://www.mobafire.com";
+
+            foreach (HtmlNode element in node.ChildNodes)
+            {
+                if (element.Attributes["class"] != null && element.Attributes["class"].Value == "champ-abilities__item__pic")
+                {
+                    var iconSrcString = element.ChildNodes[1].Attributes["data-cfsrc"].Value;
+
+                    iconSrc += iconSrcString;
+                }
+
+            }
+
+            return iconSrc;
+        }
 
         public List<string> GetCooldowns(HtmlNode node)
         {
