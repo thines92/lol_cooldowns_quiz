@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Net.Http;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using HtmlAgilityPack;
+using MongoDB.Driver;
+using MongoDB.Driver.Core;
+using MongoDB.Driver.Linq;
+using System.Data.SqlClient;
+using MongoDB.Bson;
+using LanguageExt;
+using System.Web;
 
 namespace lol_cd_quiz
 {
@@ -16,7 +22,29 @@ namespace lol_cd_quiz
 
             var champions = GetChampions(championUrls);
 
+            UpdateDatabase(champions);
             Console.ReadLine();
+        }
+
+        private static async void UpdateDatabase(List<Champion> champions)
+        {
+            IMongoDatabase database = ConnectMongoDb();
+            IMongoCollection<Champion> championCollection = database.GetCollection<Champion>("champions");
+
+            foreach (var champion in champions)
+            {
+                var filter = Builders<Champion>.Filter.Eq(x => x.Name, champion.Name);
+                Option<Champion> foundChampion = await championCollection.Find(filter).SingleOrDefaultAsync();
+
+                foundChampion
+                    .Some(x =>
+                    {
+                        var championFilter = Builders<Champion>.Filter.Eq("Name", champion.Name);
+                        var championUpdate = Builders<Champion>.Update.Set("Cooldowns", champion.Abilities);
+                        championCollection.UpdateOne(championFilter, championUpdate);
+                    })
+                    .None(() => championCollection.InsertOne(champion));
+            };
         }
 
         private static async Task<string> GetHtmlAsync(String url)
@@ -63,6 +91,13 @@ namespace lol_cd_quiz
                 championUrls.Add(championPageUrl);
             }
 
+            //for (var i = 0; i < 6; i++)
+            //{
+            //    var href = champNodes[i].GetAttributeValue("href", string.Empty);
+            //    var championPageUrl = "https://www.mobafire.com" + href;
+            //    championUrls.Add(championPageUrl);
+            //}
+
             return championUrls;
         }
 
@@ -84,37 +119,103 @@ namespace lol_cd_quiz
         {
             Champion champion = new Champion();
 
+            
             champion.Name = GetHtmlNode(url, "//div[contains(@class, 'champ-splash__title')]/h2").InnerText;
-            champion.Cooldowns = new List<string>();
+            champion.Abilities = new List<Ability>();
+            var championAbilityNodes = GetHtmlNodes(url, "//a[contains(@class, 'champ-abilities__item ')]");
             var championCooldownNodes = GetHtmlNodes(url, "//div[contains(@class, 'champ-abilities__item__cooldown')]");
 
-            foreach (HtmlNode node in championCooldownNodes)
+            foreach (HtmlNode node in championAbilityNodes)
             {
-                var championCooldown = GetChampionCooldown(node);
-                champion.Cooldowns.Add(championCooldown);
+                var ability = GetAbilityInfo(node);
+                champion.Abilities.Add(ability);
+
+                //champion.Cooldowns.Add(championCooldown);
             }
 
             return champion;
         }
 
+        private static Ability GetAbilityInfo(HtmlNode node)
+        {
+            Ability ability = new Ability();
+            ability.Cooldown = ability.GetCooldown(node);
+            ability.Name = ability.GetName(node);
+            ability.Key = ability.GetKey(node);
+
+            return ability;
+        }
+
         private static String GetChampionCooldown(HtmlNode node)
         {
-            var nodeText = node.InnerText;
+            var nodeText = node.SelectSingleNode("//div[contains(@class, 'champ-abilities__item__cooldown')]").InnerText.Replace("\n", "");
             var cooldowns = new string((from i in nodeText
                                        where char.IsLetterOrDigit(i) || char.IsWhiteSpace(i)
                                        select i
                                        ).ToArray()).Replace(Environment.NewLine, "");
             var cooldownArray = cooldowns.Split(" ");
-            //var cooldown = nodeText.FirstOrDefault(c => char.IsDigit(c)).ToString();
             var cooldown = cooldownArray[0];
 
             return cooldown;
         }
 
+        private static IMongoDatabase ConnectMongoDb()
+        {
+            MongoClient dbClient = new MongoClient("mongodb+srv://thines92:Aidran001@cluster0.t6myq.mongodb.net/lol_db?retryWrites=true&w=majority");
+
+            var database = dbClient.GetDatabase("lol_db");
+
+            return database;
+        }
+
         public class Champion
         {
+            public ObjectId _id { get; set; }
             public string Name { get; set; }
-            public List<String> Cooldowns { get; set; }
+            public List<Ability> Abilities { get; set; }
+        }
+
+        public class Ability
+        {
+            public string Name { get; set; }
+            public string Key { get; set; }
+            public string Cooldown { get; set; }
+
+            public String GetCooldown(HtmlNode node)
+            {
+                //var nodeText = node.SelectSingleNode("//div[contains(@class, 'champ-abilities__item__cooldown')]").InnerText.Replace("\n", "");
+                var nodeText = node.Element("div[contains(@class, 'champ-abilities__item__cooldown')]");
+
+                //foreach (HtmlNode abilityNode in nodeText)
+                //{
+                //    var cooldowns = new string((from i in abilityNode.InnerText
+                //                                where char.IsLetterOrDigit(i) || char.IsWhiteSpace(i)
+                //                                select i
+                //                           ).ToArray()).Replace("\n", "");
+                //    var cooldownArray = cooldowns.Split(" ");
+                //    var cooldown = cooldownArray[0];
+
+                //    if (cooldown == "")
+                //    {
+                //        cooldown = "0";
+                //    }
+                //}
+
+                return nodeText.InnerText;
+            }
+            public string GetName(HtmlNode node)
+            {
+                var nodeText = node.SelectSingleNode("//div[contains(@class, 'champ-abilities__item__name')]").InnerText.Replace("\n", "");
+
+                return nodeText;
+            }
+
+            public string GetKey(HtmlNode node)
+            {
+                var nodeText = node.SelectSingleNode("//div[contains(@class, 'champ-abilities__item__letter')]").InnerText.Replace("\n", "");
+
+                return nodeText;
+            }
         }
     }
 }
