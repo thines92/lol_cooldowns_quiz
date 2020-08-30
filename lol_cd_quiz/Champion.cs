@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
 using HtmlAgilityPack;
 
@@ -12,7 +13,7 @@ namespace lol_cd_quiz
         }
 
         public ObjectId _id { get; set; }
-        public string Name { get; set; }
+        public Dictionary<string, string> Name { get; set; }
         public List<Ability> Abilities { get; set; }
 
         public static List<string> GetChampionUrls(String url)
@@ -57,7 +58,7 @@ namespace lol_cd_quiz
             Champion champion = new Champion();
 
 
-            champion.Name = HtmlScraper.GetHtmlNode(url, "//div[contains(@class, 'champ-splash__title')]/h2").InnerText;
+            champion.Name = GetChampionNameAndTitle(url);
             champion.Abilities = new List<Ability>();
             var championAbilityNodes = HtmlScraper.GetHtmlNodes(url, "//a[contains(@class, 'champ-abilities__item ')]");
 
@@ -68,6 +69,22 @@ namespace lol_cd_quiz
             }
 
             return champion;
+        }
+
+        private static Dictionary<string, string> GetChampionNameAndTitle(String url)
+        {
+            var nodes = HtmlScraper.GetHtmlNodes(url, "//div[contains(@class, 'champ-splash__title')]/h2");
+            Dictionary<string, string> nameDictionary = new Dictionary<string, string>();
+
+            foreach (var node in nodes)
+            {
+                var nameList = node.ChildNodes.ToList();
+
+                nameDictionary.Add("name", nameList[0].InnerText);
+                nameDictionary.Add("title", nameList[1].InnerText);
+            }
+
+            return nameDictionary;
         }
     }
 }
