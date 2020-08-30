@@ -37,6 +37,21 @@ namespace lol_cd_quiz
             return championUrls;
         }
 
+        public static List<Champion> GetChampions()
+        {
+            List<Champion> champions = new List<Champion>();
+            List<String> championUrls = GetChampionUrls("https://www.mobafire.com/league-of-legends/champions");
+
+            foreach (String url in championUrls)
+            {
+                Champion champion = GetChampionInformation(url);
+
+                champions.Add(champion);
+            }
+
+            return champions;
+        }
+
         private static Champion GetChampionInformation(String url)
         {
             Champion champion = new Champion();
@@ -53,20 +68,6 @@ namespace lol_cd_quiz
             }
 
             return champion;
-        }
-
-        public static List<Champion> GetChampions(List<string> championUrls)
-        {
-            List<Champion> champions = new List<Champion>();
-
-            foreach (String url in championUrls)
-            {
-                Champion champion = GetChampionInformation(url);
-
-                champions.Add(champion);
-            }
-
-            return champions;
         }
     }
 }

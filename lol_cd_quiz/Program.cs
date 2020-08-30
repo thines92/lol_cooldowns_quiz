@@ -16,9 +16,7 @@ namespace lol_cd_quiz
     {
         static void Main(string[] args)
         {
-            var championUrls = Champion.GetChampionUrls("https://www.mobafire.com/league-of-legends/champions");
-
-            var champions = Champion.GetChampions(championUrls);
+            var champions = Champion.GetChampions();
 
             Database.UpdateDatabase(champions);
             Console.ReadLine();
