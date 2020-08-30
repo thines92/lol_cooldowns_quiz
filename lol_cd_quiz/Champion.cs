@@ -14,7 +14,7 @@ namespace lol_cd_quiz
 
         public ObjectId _id { get; set; }
         public string Name { get; set; }
-        public string title { get; set; }
+        public string Title { get; set; }
         public List<Ability> Abilities { get; set; }
 
         public static List<string> GetChampionUrls(String url)
@@ -60,7 +60,7 @@ namespace lol_cd_quiz
 
             var nameAndTitle = GetChampionNameAndTitle(url);
             champion.Name = nameAndTitle[0];
-            champion.title = nameAndTitle[1];
+            champion.Title = nameAndTitle[1];
             champion.Abilities = new List<Ability>();
             var championAbilityNodes = HtmlScraper.GetHtmlNodes(url, "//a[contains(@class, 'champ-abilities__item ')]");
 
