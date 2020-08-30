@@ -26,7 +26,7 @@ namespace lol_cd_quiz
                     .Some(x =>
                     {
                         var championFilter = Builders<Champion>.Filter.Eq("Name", champion.Name);
-                        var championUpdate = Builders<Champion>.Update.Set("Cooldowns", champion.Abilities);
+                        var championUpdate = Builders<Champion>.Update.Set("Abilities", champion.Abilities);
                         championCollection.UpdateOne(championFilter, championUpdate);
                     })
                     .None(() => championCollection.InsertOne(champion));
