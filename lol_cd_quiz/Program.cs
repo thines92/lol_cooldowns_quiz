@@ -7,7 +7,6 @@ using HtmlAgilityPack;
 using MongoDB.Driver;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Linq;
-using LanguageExt;
 using MongoDB.Bson;
 
 namespace lol_cd_quiz

@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Linq.Expressions;
 using MongoDB.Driver;
-using LanguageExt;
 using MongoDB.Driver.Linq;
+using MongoDB.Bson;
 
 namespace lol_cd_quiz
 {
@@ -11,7 +12,7 @@ namespace lol_cd_quiz
         {
         }
 
-        public static async void UpdateDatabase()
+        public static void UpdateDatabase()
         {
             IMongoDatabase database = ConnectMongoDb();
             ChampionList championList = new ChampionList();
@@ -19,19 +20,19 @@ namespace lol_cd_quiz
 
             foreach (var champion in championList.Champions)
             {
-                var filter = Builders<Champion>.Filter.Eq(x => x.Name, champion.Name);
-                Option<Champion> foundChampion = await championCollection.Find(filter).SingleOrDefaultAsync();
-                Console.WriteLine(foundChampion);
-                foundChampion
-                    .Some(x =>
-                    {
-                        var championFilter = Builders<Champion>.Filter.Eq("Name", champion.Name);
-                        var championUpdate = Builders<Champion>.Update.Set("Abilities", champion.Abilities);
-                        championCollection.UpdateOne(championFilter, championUpdate);
-                    })
-                    .None(() => championCollection.InsertOne(champion));
+                FilterDefinition<Champion> filter = Builders<Champion>.Filter.Eq(x => x.Name, champion.Name);
+                var foundChampion = championCollection.Find(filter).FirstOrDefault();
 
-                championCollection.InsertOne(champion);
+                if (foundChampion != null)
+                {
+                    var championFilter = Builders<Champion>.Filter.Eq("Name", champion.Name);
+                    var championUpdate = Builders<Champion>.Update.Set("Abilities", champion.Abilities);
+                    championCollection.UpdateOne(championFilter, championUpdate);
+                } else
+                {
+                    championCollection.InsertOne(champion);
+                }
+
             };
         }
 

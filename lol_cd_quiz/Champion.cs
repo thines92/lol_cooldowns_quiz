@@ -3,21 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using HtmlAgilityPack;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace lol_cd_quiz
 {
     public class Champion
     {
-        public Champion(string url)
+        public Champion()
         {
-            Name = GetChampionNameAndTitle(url)[0];
-            Title = GetChampionNameAndTitle(url)[1];
-            Abilities = GetAbilityInformation(url);
         }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public ObjectId Id { get; set; }
 
-        public ObjectId _id { get; set; }
+        [BsonElement("Name")]
         public string Name { get; set; }
+        [BsonElement("Title")]
         public string Title { get; set; }
+        [BsonElement("Abilities")]
         public List<Ability> Abilities { get; set; }
 
         
@@ -41,7 +44,7 @@ namespace lol_cd_quiz
         //    return champion;
         //}
 
-        private static List<Ability> GetAbilityInformation(string url)
+        public static List<Ability> GetAbilityInformation(string url)
         {
             List<Ability> abilities = new List<Ability>();
             var championAbilityNodes = HtmlScraper.GetHtmlNodes(url, "//a[contains(@class, 'champ-abilities__item ')]");
