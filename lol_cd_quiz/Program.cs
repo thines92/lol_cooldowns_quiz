@@ -129,8 +129,6 @@ namespace lol_cd_quiz
             {
                 var ability = GetAbilityInfo(node);
                 champion.Abilities.Add(ability);
-
-                //champion.Cooldowns.Add(championCooldown);
             }
 
             return champion;
@@ -142,6 +140,7 @@ namespace lol_cd_quiz
             ability.Cooldown = ability.GetCooldown(node);
             ability.Name = ability.GetName(node);
             ability.Key = ability.GetKey(node);
+            ability.Description = ability.GetDescription(node);
 
             return ability;
         }
@@ -180,6 +179,7 @@ namespace lol_cd_quiz
             public string Name { get; set; }
             public string Key { get; set; }
             public string Cooldown { get; set; }
+            public string Description { get; set; }
 
             public String GetCooldown(HtmlNode node)
             {
@@ -245,6 +245,28 @@ namespace lol_cd_quiz
                 }
 
                 return key;
+            }
+
+            public string GetDescription(HtmlNode node)
+            {
+                var desc = "";
+
+                foreach (HtmlNode element in node.ChildNodes)
+                {
+                    if (element.Attributes["class"] != null && element.Attributes["class"].Value == "champ-abilities__item__desc")
+                    {
+                        var descString = element.ChildNodes.ToList();
+                        var newDesc = descString.FindAll(x => x.Name == "#text");
+
+                        foreach (var descElement in newDesc)
+                        {
+                            desc += descElement.InnerText;
+                        }
+                    }
+
+                }
+
+                return desc;
             }
         }
     }
