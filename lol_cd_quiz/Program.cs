@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 using HtmlAgilityPack;
 
 namespace lol_cd_quiz
@@ -89,11 +90,25 @@ namespace lol_cd_quiz
 
             foreach (HtmlNode node in championCooldownNodes)
             {
-                var championCooldown = node.InnerText;
+                var championCooldown = GetChampionCooldown(node);
                 champion.Cooldowns.Add(championCooldown);
             }
 
             return champion;
+        }
+
+        private static String GetChampionCooldown(HtmlNode node)
+        {
+            var nodeText = node.InnerText;
+            var cooldowns = new string((from i in nodeText
+                                       where char.IsLetterOrDigit(i) || char.IsWhiteSpace(i)
+                                       select i
+                                       ).ToArray()).Replace(Environment.NewLine, "");
+            var cooldownArray = cooldowns.Split(" ");
+            //var cooldown = nodeText.FirstOrDefault(c => char.IsDigit(c)).ToString();
+            var cooldown = cooldownArray[0];
+
+            return cooldown;
         }
 
         public class Champion
