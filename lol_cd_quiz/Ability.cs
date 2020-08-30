@@ -120,6 +120,28 @@ namespace lol_cd_quiz
             return key;
         }
 
+        //public string GetDescription(HtmlNode node)
+        //{
+        //    var desc = "";
+
+        //    foreach (HtmlNode element in node.ChildNodes)
+        //    {
+        //        if (element.Attributes["class"] != null && element.Attributes["class"].Value == "champ-abilities__item__desc")
+        //        {
+        //            var descString = element.ChildNodes.ToList();
+        //            var newDesc = descString.FindAll(x => x.Name == "#text");
+
+        //            foreach (var descElement in newDesc)
+        //            {
+        //                desc += descElement.InnerText;
+        //            }
+        //        }
+
+        //    }
+
+        //    return desc;
+        //}
+
         public string GetDescription(HtmlNode node)
         {
             var desc = "";

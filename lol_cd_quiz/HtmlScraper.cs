@@ -8,38 +8,56 @@ namespace lol_cd_quiz
     {
         public HtmlScraper()
         {
+            
         }
 
-        public static async Task<string> GetHtmlAsync(String url)
+        public static HtmlDocument WebpageHtml = GetHtmlDocumentAsync("https://www.mobafire.com/league-of-legends/champions").Result;
+
+        public static async Task<HtmlDocument> GetHtmlDocumentAsync(string url)
         {
             var httpClient = new HttpClient();
             var html = await httpClient.GetStringAsync(url);
 
-            return html;
+            HtmlDocument WebpageHtml = new HtmlDocument();
+            WebpageHtml.LoadHtml(html);
+
+            return WebpageHtml;
         }
 
         public static HtmlNodeCollection GetHtmlNodes(String url, String searchValue)
         {
-            var html = GetHtmlAsync(url).Result;
-            var htmlDocument = new HtmlDocument();
-            htmlDocument.LoadHtml(html);
+            WebpageHtml = GetHtmlDocumentAsync(url).Result;
 
-            return htmlDocument
+
+            var result = WebpageHtml
                 .DocumentNode
                 .SelectNodes(searchValue);
+
+            return result;
+        }
+
+        public static HtmlNodeCollection GetHtmlNodes(String searchValue)
+        {
+            var result = WebpageHtml
+                .DocumentNode
+                .SelectNodes(searchValue);
+
+            return result;
         }
 
         public static HtmlNode GetHtmlNode(String url, String searchValue)
         {
-            var html = GetHtmlAsync(url).Result;
-            var htmlDocument = new HtmlDocument();
-            htmlDocument.LoadHtml(html);
-
-            var htmlNode = htmlDocument
+            return WebpageHtml
                 .DocumentNode
                 .SelectSingleNode(searchValue);
+        }
 
-            return htmlNode;
+        public static HtmlNodeCollection GetChildNodes(string searchValue)
+        {
+            return WebpageHtml
+                .DocumentNode
+                .SelectSingleNode(searchValue)
+                .ChildNodes;
         }
     }
 }
