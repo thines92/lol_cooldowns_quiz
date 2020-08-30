@@ -59,5 +59,22 @@ namespace lol_cd_quiz
                 .SelectSingleNode(searchValue)
                 .ChildNodes;
         }
+
+        public static HtmlNodeCollection SearchNodeForValue(HtmlNode node, Filter filter)
+        {
+            HtmlNodeCollection result = null;
+
+            foreach (HtmlNode element in node.ChildNodes)
+            {
+                if (element.Attributes[filter.Attribute] != null && element.Attributes[filter.Attribute].Value == filter.XPath)
+                {
+                    result = element.ChildNodes;
+
+                }
+
+            }
+
+            return result;
+        }
     }
 }

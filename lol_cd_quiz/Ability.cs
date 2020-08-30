@@ -28,70 +28,31 @@ namespace lol_cd_quiz
 
         public string GetIconSrc(HtmlNode node)
         {
-            var iconSrc = "https://www.mobafire.com";
+            String baseUrl = "https://www.mobafire.com";
             Filter filter = new Filter("class", "champ-abilities__item__pic");
-            var result = SearchNodeForValue(node, filter)
+
+            var result = HtmlScraper.SearchNodeForValue(node, filter)
                 .Where(x => x.Attributes["data-cfsrc"] != null)
                 .SingleOrDefault()
                 .Attributes["data-cfsrc"].Value;
 
-            return iconSrc += result;
+            return baseUrl += result;
         }
-
-        public HtmlNodeCollection SearchNodeForValue(HtmlNode node, Filter filter)
-        {
-            HtmlNodeCollection result = null;
-
-            foreach (HtmlNode element in node.ChildNodes)
-            {
-                if (element.Attributes[filter.Attribute] != null && element.Attributes[filter.Attribute].Value == filter.XPath)
-                {
-                    result = element.ChildNodes;
-
-                }
-
-            }
-
-            return result;
-        }
-
-        
 
 
         public List<string> GetCooldowns(HtmlNode node)
         {
             List<string> cooldownArray = new List<string>();
+            Filter filter = new Filter("class", "champ-abilities__item__cooldown");
 
-            foreach (HtmlNode element in node.ChildNodes)
-            {
-                if (element.Attributes["class"] != null && element.Attributes["class"].Value == "champ-abilities__item__cooldown")
-                {
-                    var cooldowns = new string((from i in element.InnerText
-                                                where char.IsLetterOrDigit(i) || char.IsWhiteSpace(i)
-                                                select i
-                                                ).ToArray()).Replace("\n", "");
-                    var cooldownsArray = cooldowns.Split(" ").Where(x => x != "").ToArray();
+            List<string> cooldowns = HtmlScraper.SearchNodeForValue(node, filter)
+                .Where(x => x.Name.Contains("text"))
+                .FirstOrDefault()
+                .InnerText.Replace("\n", "").Replace(" / ", " ")
+                .Split(" ")
+                .ToList();
 
-                    if (cooldownsArray.Length > 0)
-                    {
-                        foreach (var cd in cooldownsArray)
-                        {
-                            var cdValue = cd;
-                            if (cdValue == "")
-                            {
-                                cdValue = "0";
-                            }
-                            cooldownArray.Add(cdValue);
-                        }
-                    } else
-                    {
-                        cooldownArray.Add("N/A");
-                    }
-                }
-
-            }
-
-            return cooldownArray;
+            return cooldowns;
         }
 
         public string GetName(HtmlNode node)
