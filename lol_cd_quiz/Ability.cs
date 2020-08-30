@@ -37,14 +37,20 @@ namespace lol_cd_quiz
                                                 ).ToArray()).Replace("\n", "");
                     var cooldownsArray = cooldowns.Split(" ").Where(x => x != "").ToArray();
 
-                    foreach (var cd in cooldownsArray)
+                    if (cooldownsArray.Length > 0)
                     {
-                        var cdValue = cd;
-                        if (cdValue == "")
+                        foreach (var cd in cooldownsArray)
                         {
-                            cdValue = "0";
+                            var cdValue = cd;
+                            if (cdValue == "")
+                            {
+                                cdValue = "0";
+                            }
+                            cooldownArray.Add(cdValue);
                         }
-                        cooldownArray.Add(cdValue);
+                    } else
+                    {
+                        cooldownArray.Add("N/A");
                     }
                 }
 
