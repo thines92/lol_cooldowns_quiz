@@ -13,7 +13,8 @@ namespace lol_cd_quiz
         }
 
         public ObjectId _id { get; set; }
-        public Dictionary<string, string> Name { get; set; }
+        public string Name { get; set; }
+        public string title { get; set; }
         public List<Ability> Abilities { get; set; }
 
         public static List<string> GetChampionUrls(String url)
@@ -21,19 +22,19 @@ namespace lol_cd_quiz
             List<string> championUrls = new List<string>();
             HtmlNodeCollection champNodes = HtmlScraper.GetHtmlNodes(url, "//a[contains(@class, 'champ-list')]");
 
-            foreach (HtmlNode node in champNodes)
-            {
-                var href = node.GetAttributeValue("href", string.Empty);
-                var championPageUrl = "https://www.mobafire.com" + href;
-                championUrls.Add(championPageUrl);
-            }
-
-            //for (var i = 0; i < 6; i++)
+            //foreach (HtmlNode node in champNodes)
             //{
-            //    var href = champNodes[i].GetAttributeValue("href", string.Empty);
+            //    var href = node.GetAttributeValue("href", string.Empty);
             //    var championPageUrl = "https://www.mobafire.com" + href;
             //    championUrls.Add(championPageUrl);
             //}
+
+            for (var i = 0; i < 6; i++)
+            {
+                var href = champNodes[i].GetAttributeValue("href", string.Empty);
+                var championPageUrl = "https://www.mobafire.com" + href;
+                championUrls.Add(championPageUrl);
+            }
 
             return championUrls;
         }
@@ -57,8 +58,9 @@ namespace lol_cd_quiz
         {
             Champion champion = new Champion();
 
-
-            champion.Name = GetChampionNameAndTitle(url);
+            var nameAndTitle = GetChampionNameAndTitle(url);
+            champion.Name = nameAndTitle[0];
+            champion.title = nameAndTitle[1];
             champion.Abilities = new List<Ability>();
             var championAbilityNodes = HtmlScraper.GetHtmlNodes(url, "//a[contains(@class, 'champ-abilities__item ')]");
 
@@ -71,20 +73,20 @@ namespace lol_cd_quiz
             return champion;
         }
 
-        private static Dictionary<string, string> GetChampionNameAndTitle(String url)
+        public static List<string> GetChampionNameAndTitle(String url)
         {
             var nodes = HtmlScraper.GetHtmlNodes(url, "//div[contains(@class, 'champ-splash__title')]/h2");
-            Dictionary<string, string> nameDictionary = new Dictionary<string, string>();
+            List<string> nameArray = new List<string>();
 
             foreach (var node in nodes)
             {
                 var nameList = node.ChildNodes.ToList();
 
-                nameDictionary.Add("name", nameList[0].InnerText);
-                nameDictionary.Add("title", nameList[1].InnerText);
+                nameArray.Add(nameList[0].InnerText.Trim());
+                nameArray.Add(nameList[1].InnerText.Trim());
             }
 
-            return nameDictionary;
+            return nameArray;
         }
     }
 }
