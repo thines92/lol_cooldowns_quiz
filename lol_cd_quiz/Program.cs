@@ -8,8 +8,8 @@ using MongoDB.Driver;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Linq;
 using System.Data.SqlClient;
-using MongoDB.Bson;
 using LanguageExt;
+using MongoDB.Bson;
 using System.Web;
 
 namespace lol_cd_quiz
@@ -183,25 +183,28 @@ namespace lol_cd_quiz
 
             public String GetCooldown(HtmlNode node)
             {
-                //var nodeText = node.SelectSingleNode("//div[contains(@class, 'champ-abilities__item__cooldown')]").InnerText.Replace("\n", "");
-                var nodeText = node.Element("div[contains(@class, 'champ-abilities__item__cooldown')]");
+                var cooldown = "";
 
-                //foreach (HtmlNode abilityNode in nodeText)
-                //{
-                //    var cooldowns = new string((from i in abilityNode.InnerText
-                //                                where char.IsLetterOrDigit(i) || char.IsWhiteSpace(i)
-                //                                select i
-                //                           ).ToArray()).Replace("\n", "");
-                //    var cooldownArray = cooldowns.Split(" ");
-                //    var cooldown = cooldownArray[0];
+                foreach (HtmlNode element in node.ChildNodes)
+                {
+                    if (element.Attributes["class"] != null && element.Attributes["class"].Value == "champ-abilities__item__cooldown")
+                    {
+                        var cooldowns = new string((from i in element.InnerText
+                                                    where char.IsLetterOrDigit(i) || char.IsWhiteSpace(i)
+                                                    select i
+                                                    ).ToArray()).Replace("\n", "");
+                        var cooldownArray = cooldowns.Split(" ");
+                        cooldown = cooldownArray[0];
 
-                //    if (cooldown == "")
-                //    {
-                //        cooldown = "0";
-                //    }
-                //}
+                        if (cooldown == "")
+                        {
+                            cooldown = "0";
+                        }
+                    }
 
-                return nodeText.InnerText;
+                }
+
+                return cooldown;
             }
             public string GetName(HtmlNode node)
             {
