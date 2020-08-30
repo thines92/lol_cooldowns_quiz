@@ -11,12 +11,14 @@ namespace lol_cd_quiz
             Key = GetKey(node);
             Cooldown = GetCooldown(node);
             Description = GetDescription(node);
+            Cost = GetCost(node);
         }
 
         public string Name { get; set; }
         public string Key { get; set; }
         public string Cooldown { get; set; }
         public string Description { get; set; }
+        public string Cost { get; set; }
 
         public String GetCooldown(HtmlNode node)
         {
@@ -43,6 +45,7 @@ namespace lol_cd_quiz
 
             return cooldown;
         }
+
         public string GetName(HtmlNode node)
         {
             var name = "";
@@ -104,6 +107,30 @@ namespace lol_cd_quiz
             }
 
             return desc;
+        }
+
+        public string GetCost(HtmlNode node)
+        {
+            var cost = "";
+
+            foreach (HtmlNode element in node.ChildNodes)
+            {
+                if (element.Attributes["class"] != null && element.Attributes["class"].Value == "champ-abilities__item__cost")
+                {
+                    var costString = new string((from i in element.ChildNodes[0].InnerText
+                                                where char.IsLetterOrDigit(i) || char.IsWhiteSpace(i)
+                                                select i
+                                                ).ToArray()).Replace("\n", " ");
+                    var costArray = costString.Split(" ").Where(x => x.ToString() != "").ToArray();
+                    if (costArray.Length > 0)
+                    {
+                        cost = costArray[0];
+                    }
+                }
+
+            }
+
+            return cost;
         }
     }
 }
