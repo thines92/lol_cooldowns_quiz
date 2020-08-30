@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Collections.Generic;
 using HtmlAgilityPack;
 namespace lol_cd_quiz
 {
@@ -9,20 +10,20 @@ namespace lol_cd_quiz
         {
             Name = GetName(node);
             Key = GetKey(node);
-            Cooldown = GetCooldown(node);
+            Cooldowns = GetCooldowns(node);
             Description = GetDescription(node);
             Cost = GetCost(node);
         }
 
         public string Name { get; set; }
         public string Key { get; set; }
-        public string Cooldown { get; set; }
+        public List<String> Cooldowns { get; set; }
         public string Description { get; set; }
         public string Cost { get; set; }
 
-        public String GetCooldown(HtmlNode node)
+        public List<string> GetCooldowns(HtmlNode node)
         {
-            var cooldown = "";
+            List<string> cooldownArray = new List<string>();
 
             foreach (HtmlNode element in node.ChildNodes)
             {
@@ -32,18 +33,22 @@ namespace lol_cd_quiz
                                                 where char.IsLetterOrDigit(i) || char.IsWhiteSpace(i)
                                                 select i
                                                 ).ToArray()).Replace("\n", "");
-                    var cooldownArray = cooldowns.Split(" ");
-                    cooldown = cooldownArray[0];
+                    var cooldownsArray = cooldowns.Split(" ").Where(x => x != "").ToArray();
 
-                    if (cooldown == "")
+                    foreach (var cd in cooldownsArray)
                     {
-                        cooldown = "0";
+                        var cdValue = cd;
+                        if (cdValue == "")
+                        {
+                            cdValue = "0";
+                        }
+                        cooldownArray.Add(cdValue);
                     }
                 }
 
             }
 
-            return cooldown;
+            return cooldownArray;
         }
 
         public string GetName(HtmlNode node)

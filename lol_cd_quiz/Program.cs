@@ -16,9 +16,8 @@ namespace lol_cd_quiz
     {
         static void Main(string[] args)
         {
-            var champions = Champion.GetChampions();
+            Database.UpdateDatabase(Champion.GetChampions());
 
-            Database.UpdateDatabase(champions);
             Console.ReadLine();
         }     
     }
