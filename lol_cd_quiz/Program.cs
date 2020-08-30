@@ -208,7 +208,6 @@ namespace lol_cd_quiz
             }
             public string GetName(HtmlNode node)
             {
-                var nodeText = node.SelectSingleNode("//div[contains(@class, 'champ-abilities__item__name')]").InnerText.Replace("\n", "");
                 var name = "";
 
                 foreach (HtmlNode element in node.ChildNodes)
@@ -230,9 +229,22 @@ namespace lol_cd_quiz
 
             public string GetKey(HtmlNode node)
             {
-                var nodeText = node.SelectSingleNode("//div[contains(@class, 'champ-abilities__item__letter')]").InnerText.Replace("\n", "");
+                var key = "Passive";
 
-                return nodeText;
+                foreach (HtmlNode element in node.ChildNodes)
+                {
+                    if (element.Attributes["class"] != null && element.Attributes["class"].Value == "champ-abilities__item__letter")
+                    {
+                        var keyString = new string((from i in element.ChildNodes[0].InnerText
+                                                     where char.IsLetterOrDigit(i) || char.IsWhiteSpace(i)
+                                                     select i
+                                                    ).ToArray()).Replace("\n", " ");
+                        key = keyString.Trim();
+                    }
+
+                }
+
+                return key;
             }
         }
     }
