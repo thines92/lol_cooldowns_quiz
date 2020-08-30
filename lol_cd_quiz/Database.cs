@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using MongoDB.Driver.Core;
 using MongoDB.Driver;
 using LanguageExt;
+using MongoDB.Driver.Linq;
 
 namespace lol_cd_quiz
 {
@@ -12,16 +11,17 @@ namespace lol_cd_quiz
         {
         }
 
-        public static async void UpdateDatabase(List<Champion> champions)
+        public static async void UpdateDatabase()
         {
             IMongoDatabase database = ConnectMongoDb();
+            ChampionList championList = new ChampionList();
             IMongoCollection<Champion> championCollection = database.GetCollection<Champion>("champions");
 
-            foreach (var champion in champions)
+            foreach (var champion in championList.Champions)
             {
                 var filter = Builders<Champion>.Filter.Eq(x => x.Name, champion.Name);
                 Option<Champion> foundChampion = await championCollection.Find(filter).SingleOrDefaultAsync();
-
+                Console.WriteLine(foundChampion);
                 foundChampion
                     .Some(x =>
                     {
@@ -30,6 +30,8 @@ namespace lol_cd_quiz
                         championCollection.UpdateOne(championFilter, championUpdate);
                     })
                     .None(() => championCollection.InsertOne(champion));
+
+                championCollection.InsertOne(champion);
             };
         }
 
