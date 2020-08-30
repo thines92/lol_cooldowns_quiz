@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using HtmlAgilityPack;
+
 namespace lol_cd_quiz
 {
     public class Ability
@@ -28,20 +29,34 @@ namespace lol_cd_quiz
         public string GetIconSrc(HtmlNode node)
         {
             var iconSrc = "https://www.mobafire.com";
+            Filter filter = new Filter("class", "champ-abilities__item__pic");
+            var result = SearchNodeForValue(node, filter)
+                .Where(x => x.Attributes["data-cfsrc"] != null)
+                .SingleOrDefault()
+                .Attributes["data-cfsrc"].Value;
+
+            return iconSrc += result;
+        }
+
+        public HtmlNodeCollection SearchNodeForValue(HtmlNode node, Filter filter)
+        {
+            HtmlNodeCollection result = null;
 
             foreach (HtmlNode element in node.ChildNodes)
             {
-                if (element.Attributes["class"] != null && element.Attributes["class"].Value == "champ-abilities__item__pic")
+                if (element.Attributes[filter.Attribute] != null && element.Attributes[filter.Attribute].Value == filter.XPath)
                 {
-                    var iconSrcString = element.ChildNodes[1].Attributes["data-cfsrc"].Value;
+                    result = element.ChildNodes;
 
-                    iconSrc += iconSrcString;
                 }
 
             }
 
-            return iconSrc;
+            return result;
         }
+
+        
+
 
         public List<string> GetCooldowns(HtmlNode node)
         {
@@ -119,28 +134,6 @@ namespace lol_cd_quiz
 
             return key;
         }
-
-        //public string GetDescription(HtmlNode node)
-        //{
-        //    var desc = "";
-
-        //    foreach (HtmlNode element in node.ChildNodes)
-        //    {
-        //        if (element.Attributes["class"] != null && element.Attributes["class"].Value == "champ-abilities__item__desc")
-        //        {
-        //            var descString = element.ChildNodes.ToList();
-        //            var newDesc = descString.FindAll(x => x.Name == "#text");
-
-        //            foreach (var descElement in newDesc)
-        //            {
-        //                desc += descElement.InnerText;
-        //            }
-        //        }
-
-        //    }
-
-        //    return desc;
-        //}
 
         public string GetDescription(HtmlNode node)
         {
