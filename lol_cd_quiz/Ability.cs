@@ -86,24 +86,14 @@ namespace lol_cd_quiz
 
         public string GetDescription(HtmlNode node)
         {
-            var desc = "";
+            Filter filter = new Filter("class", "champ-abilities__item__desc");
 
-            foreach (HtmlNode element in node.ChildNodes)
-            {
-                if (element.Attributes["class"] != null && element.Attributes["class"].Value == "champ-abilities__item__desc")
-                {
-                    var descString = element.ChildNodes.ToList();
-                    var newDesc = descString.FindAll(x => x.Name == "#text");
+            string description = HtmlScraper.SearchNodeForValue(node, filter)?
+                .Where(x => x.Name.Contains("text"))
+                .ToArray()
+                .Aggregate("", (x, y) => x += y.InnerText);
 
-                    foreach (var descElement in newDesc)
-                    {
-                        desc += descElement.InnerText;
-                    }
-                }
-
-            }
-
-            return desc;
+            return description;
         }
 
         public string GetCost(HtmlNode node)
