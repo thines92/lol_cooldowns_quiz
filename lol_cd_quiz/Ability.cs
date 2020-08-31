@@ -10,12 +10,12 @@ namespace lol_cd_quiz
         public Ability(HtmlNode node)
         {
             IconSrc = GetIconSrc(node);
-            Name = GetName(node);
+            Name = HtmlScraper.GetStringFromNode(node, "champ-abilities__item__name");
             Key = GetKey(node);
-            Cooldowns = GetCooldowns(node);
-            Description = GetDescription(node);
-            Cost = GetCost(node);
-            Range = GetRange(node);
+            Cooldowns = HtmlScraper.GetListFromNode(node, "champ-abilities__item__cooldown");
+            Description = HtmlScraper.GetStringArrayFromNode(node, "champ-abilities__item__desc");
+            Cost = HtmlScraper.GetListFromNode(node, "champ-abilities__item__cost");
+            Range = HtmlScraper.GetListFromNode(node, "champ-abilities__item__range");
         }
 
         public string IconSrc { get; set; }
@@ -28,10 +28,9 @@ namespace lol_cd_quiz
 
         public string GetIconSrc(HtmlNode node)
         {
-            String baseUrl = "https://www.mobafire.com";
-            Filter filter = new Filter("class", "champ-abilities__item__pic");
+            string baseUrl = "https://www.mobafire.com";
 
-            var result = HtmlScraper.SearchNodeForValue(node, filter)
+            var result = HtmlScraper.GetNodeByClass(node, "champ-abilities__item__pic")
                 .Where(x => x.Attributes["data-cfsrc"] != null)
                 .SingleOrDefault()
                 .Attributes["data-cfsrc"].Value;
@@ -39,42 +38,9 @@ namespace lol_cd_quiz
             return baseUrl += result;
         }
 
-
-        public List<string> GetCooldowns(HtmlNode node)
-        {
-            List<string> cooldownArray = new List<string>();
-            Filter filter = new Filter("class", "champ-abilities__item__cooldown");
-
-            List<string> cooldowns = HtmlScraper.SearchNodeForValue(node, filter)
-                .Where(x => x.Name.Contains("text"))
-                .FirstOrDefault()
-                .InnerText.Replace("\n", "").Replace(" / ", " ")
-                .Split(" ")
-                .ToList();
-
-            return cooldowns;
-        }
-
-        public string GetName(HtmlNode node)
-        {
-            Filter filter = new Filter("class", "champ-abilities__item__name");
-
-            var name = HtmlScraper.SearchNodeForValue(node, filter)
-                .Where(x => x.Name.Contains("text"))
-                .FirstOrDefault()
-                .InnerText.Replace("\n", "");
-
-            return name;
-        }
-
         public string GetKey(HtmlNode node)
         {
-            Filter filter = new Filter("class", "champ-abilities__item__letter");
-            var test = HtmlScraper.SearchNodeForValue(node, filter);
-            var key = HtmlScraper.SearchNodeForValue(node, filter)?
-                .Where(x => x.Name.Contains("text"))
-                .FirstOrDefault()
-                .InnerText.Replace("\n", "");
+            var key = HtmlScraper.GetStringFromNode(node, "champ-abilities__item__letter");
 
             if (key == null)
             {
@@ -84,45 +50,5 @@ namespace lol_cd_quiz
             return key;
         }
 
-        public string GetDescription(HtmlNode node)
-        {
-            Filter filter = new Filter("class", "champ-abilities__item__desc");
-
-            string description = HtmlScraper.SearchNodeForValue(node, filter)?
-                .Where(x => x.Name.Contains("text"))
-                .ToArray()
-                .Aggregate("", (x, y) => x += y.InnerText);
-
-            return description;
-        }
-
-        public List<string> GetCost(HtmlNode node)
-        {
-            Filter filter = new Filter("class", "champ-abilities__item__cost");
-
-            var cost = HtmlScraper.SearchNodeForValue(node, filter)
-                .Where(x => x.Name.Contains("text"))
-                .FirstOrDefault()
-                .InnerText.Replace("\n", "").Replace(" / ", " ")
-                .Split(" ")
-                .ToList();
-      
-            return cost;
-        }
-
-        private List<string> GetRange(HtmlNode node)
-        {
-            Filter filter = new Filter("class", "champ-abilities__item__range");
-
-            var test = HtmlScraper.SearchNodeForValue(node, filter);
-            var ranges = HtmlScraper.SearchNodeForValue(node, filter)
-                .Where(x => x.Name.Contains("text"))
-                .FirstOrDefault()
-                .InnerText.Replace("\n", "").Replace(" / ", " ")
-                .Split(" ")
-                .ToList();
-
-            return ranges;
-        }
     }
 }

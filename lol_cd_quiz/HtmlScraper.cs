@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web;
 using HtmlAgilityPack;
+
 namespace lol_cd_quiz
 {
     public class HtmlScraper
@@ -61,19 +64,51 @@ namespace lol_cd_quiz
                 .ChildNodes;
         }
 
-        public static HtmlNodeCollection SearchNodeForValue(HtmlNode node, Filter filter)
+        public static HtmlNodeCollection GetNodeByClass(HtmlNode node, string className)
         {
             HtmlNodeCollection result = null;
 
             foreach (HtmlNode element in node.ChildNodes)
             {
-                if (element.Attributes[filter.Attribute] != null && element.Attributes[filter.Attribute].Value == filter.XPath)
+                if (element.Attributes["class"] != null && element.Attributes["class"].Value == className)
                 {
                     result = element.ChildNodes;
                 }
             }
 
             return result;
+        }
+
+        public static List<string> GetListFromNode(HtmlNode node, string className)
+        {
+            List<string> list = GetNodeByClass(node, className)
+                .Where(x => x.Name.Contains("text"))
+                .FirstOrDefault()
+                .InnerText.Replace("\n", "").Replace(" / ", " ")
+                .Split(" ")
+                .ToList();
+
+            return list;
+        }
+
+        public static string GetStringFromNode(HtmlNode node, string className)
+        {
+            string value = GetNodeByClass(node, className)?
+                   .Where(x => x.Name.Contains("text"))
+                   .FirstOrDefault()
+                   .InnerText.Replace("\n", "");
+
+            return value;
+        }
+
+        public static string GetStringArrayFromNode(HtmlNode node, string className)
+        {
+            string value = HtmlScraper.GetNodeByClass(node, className)?
+                .Where(x => x.Name.Contains("text"))
+                .ToArray()
+                .Aggregate("", (x, y) => x += y.InnerText);
+
+            return value;
         }
     }
 }
