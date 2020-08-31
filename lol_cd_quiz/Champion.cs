@@ -23,27 +23,6 @@ namespace lol_cd_quiz
         [BsonElement("Abilities")]
         public List<Ability> Abilities { get; set; }
 
-        
-
-        //public static Champion GetInformation(string url)
-        //{
-        //    Champion champion = new Champion();
-
-        //    var nameAndTitle = GetChampionNameAndTitle(url);
-        //    champion.Name = nameAndTitle[0];
-        //    champion.Title = nameAndTitle[1];
-        //    champion.Abilities = new List<Ability>();
-        //    var championAbilityNodes = HtmlScraper.GetHtmlNodes(url, "//a[contains(@class, 'champ-abilities__item ')]");
-
-        //    foreach (HtmlNode node in championAbilityNodes)
-        //    {
-        //        var ability = new Ability(node);
-        //        champion.Abilities.Add(ability);
-        //    }
-
-        //    return champion;
-        //}
-
         public static List<Ability> GetAbilityInformation(string url)
         {
             List<Ability> abilities = new List<Ability>();
@@ -61,6 +40,7 @@ namespace lol_cd_quiz
         public static List<string> GetChampionNameAndTitle(String url)
         {
             var nodes = HtmlScraper.GetHtmlNodes(url, "//div[contains(@class, 'champ-splash__title')]/h2");
+
             List<string> nameArray = new List<string>();
 
             foreach (var node in nodes)
