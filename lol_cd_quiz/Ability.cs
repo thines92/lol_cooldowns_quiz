@@ -69,19 +69,16 @@ namespace lol_cd_quiz
 
         public string GetKey(HtmlNode node)
         {
-            var key = "Passive";
+            Filter filter = new Filter("class", "champ-abilities__item__letter");
+            var test = HtmlScraper.SearchNodeForValue(node, filter);
+            var key = HtmlScraper.SearchNodeForValue(node, filter)?
+                .Where(x => x.Name.Contains("text"))
+                .FirstOrDefault()
+                .InnerText.Replace("\n", "");
 
-            foreach (HtmlNode element in node.ChildNodes)
+            if (key == null)
             {
-                if (element.Attributes["class"] != null && element.Attributes["class"].Value == "champ-abilities__item__letter")
-                {
-                    var keyString = new string((from i in element.ChildNodes[0].InnerText
-                                                where char.IsLetterOrDigit(i) || char.IsWhiteSpace(i)
-                                                select i
-                                                ).ToArray()).Replace("\n", " ");
-                    key = keyString.Trim();
-                }
-
+                key = "Passive";
             }
 
             return key;

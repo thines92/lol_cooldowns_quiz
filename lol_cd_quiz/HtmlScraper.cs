@@ -70,9 +70,7 @@ namespace lol_cd_quiz
                 if (element.Attributes[filter.Attribute] != null && element.Attributes[filter.Attribute].Value == filter.XPath)
                 {
                     result = element.ChildNodes;
-
                 }
-
             }
 
             return result;
