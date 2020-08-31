@@ -112,29 +112,17 @@ namespace lol_cd_quiz
 
         private List<string> GetRange(HtmlNode node)
         {
-            List<string> range = new List<string>();
+            Filter filter = new Filter("class", "champ-abilities__item__range");
 
-            foreach (HtmlNode element in node.ChildNodes)
-            {
-                if (element.Attributes["class"] != null && element.Attributes["class"].Value == "champ-abilities__item__range")
-                {
-                    var rangeString = new string((from i in element.ChildNodes[0].InnerText
-                                                 where char.IsLetterOrDigit(i) || char.IsWhiteSpace(i)
-                                                 select i
-                                                ).ToArray()).Replace("\n", " ");
-                    var rangeArray = rangeString.Split(" ").Where(x => x.ToString() != "").ToArray();
-                    if (rangeArray.Length > 0)
-                    {
-                        foreach (var rangeElement in rangeArray)
-                        {
-                            range.Add(rangeElement);
-                        }
-                    }
-                }
+            var test = HtmlScraper.SearchNodeForValue(node, filter);
+            var ranges = HtmlScraper.SearchNodeForValue(node, filter)
+                .Where(x => x.Name.Contains("text"))
+                .FirstOrDefault()
+                .InnerText.Replace("\n", "").Replace(" / ", " ")
+                .Split(" ")
+                .ToList();
 
-            }
-
-            return range;
+            return ranges;
         }
     }
 }
