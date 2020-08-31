@@ -9,8 +9,11 @@ namespace lol_cd_quiz
 {
     public class Champion
     {
-        public Champion()
+        public Champion(string url)
         {
+            Name = GetChampionNameAndTitle(url)[0];
+            Title = GetChampionNameAndTitle(url)[1];
+            Abilities = GetAbilityInformation(url);
         }
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]

@@ -41,11 +41,7 @@ namespace lol_cd_quiz
 
             foreach (String url in championUrls)
             {
-                Champion champion = new Champion();
-
-                champion.Name = Champion.GetChampionNameAndTitle(url)[0];
-                champion.Title = Champion.GetChampionNameAndTitle(url)[1];
-                champion.Abilities = Champion.GetAbilityInformation(url);
+                Champion champion = new Champion(url);
 
                 champions.Add(champion);
             }
